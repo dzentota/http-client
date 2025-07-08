@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c498747b92293f03c0c6b280e1486d23",
+    "content-hash": "d9552a163b09c8ad20b05d1f3a443adb",
     "packages": [
         {
             "name": "dzentota/dns-resolver",
@@ -2262,7 +2262,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.1"
+        "php": "^8.2"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"
