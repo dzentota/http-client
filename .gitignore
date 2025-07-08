@@ -1,0 +1,24 @@
+# Dependencies
+/vendor/
+
+# PHPUnit
+/.phpunit.cache/
+/coverage-html/
+phpunit.xml.local
+
+# IDEs
+/.idea/
+/.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Cache
+/.php-cs-fixer.cache
+/.phpstan.cache
