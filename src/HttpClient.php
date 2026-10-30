@@ -385,7 +385,12 @@ class HttpClient implements ClientInterface
         $response = $response->withStatus($code, $reasonPhrase);
         foreach ($headers as $header) {
             [$headerName, $headerValue] = explode(':', $header, 2);
-            $response = $response->withAddedHeader($headerName, $headerValue);
+            $withHeader = $response->withAddedHeader($headerName, $headerValue);
+            // psr/http-message 1.x declares MessageInterface as the return type.
+            if (!$withHeader instanceof ResponseInterface) {
+                throw new \LogicException('Response factory returned a non-response message');
+            }
+            $response = $withHeader;
         }
 
         $response->getBody()->write($content);
