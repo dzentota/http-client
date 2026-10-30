@@ -34,7 +34,6 @@ class HttpClient implements ClientInterface
 
     // Runtime state
     private int $redirectsCount = 0;
-    private int $retryCount = 0;
     private array $trustedHosts = [];
 
     /**
@@ -212,7 +211,8 @@ class HttpClient implements ClientInterface
     /**
      * Perform POST request
      */
-    public function post(string $url, $body, array $headers = []): ResponseInterface
+    /** @param string|array<mixed>|object $body */
+    public function post(string $url, mixed $body, array $headers = []): ResponseInterface
     {
         return $this->request(Method::POST, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
     }
@@ -220,7 +220,8 @@ class HttpClient implements ClientInterface
     /**
      * Perform PUT request
      */
-    public function put(string $url, $body, array $headers = []): ResponseInterface
+    /** @param string|array<mixed>|object $body */
+    public function put(string $url, mixed $body, array $headers = []): ResponseInterface
     {
         return $this->request(Method::PUT, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
     }
@@ -228,7 +229,8 @@ class HttpClient implements ClientInterface
     /**
      * Perform PATCH request
      */
-    public function patch(string $url, $body, array $headers = []): ResponseInterface
+    /** @param string|array<mixed>|object $body */
+    public function patch(string $url, mixed $body, array $headers = []): ResponseInterface
     {
         return $this->request(Method::PATCH, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
     }
@@ -329,12 +331,10 @@ class HttpClient implements ClientInterface
                 usleep($delay);
             } else {
                 $exception = new RequestException("Failed to fetch '$url' after {$this->maxRetries} retries");
-                $this->retryCount = 0;
                 throw $exception;
             }
         }
 
-        $this->retryCount = 0;
 
         if ($content === false) {
             throw new RequestException("Failed to fetch '$url'");
@@ -385,7 +385,12 @@ class HttpClient implements ClientInterface
         $response = $response->withStatus($code, $reasonPhrase);
         foreach ($headers as $header) {
             [$headerName, $headerValue] = explode(':', $header, 2);
-            $response = $response->withAddedHeader($headerName, $headerValue);
+            $withHeader = $response->withAddedHeader($headerName, $headerValue);
+            // psr/http-message 1.x declares MessageInterface as the return type.
+            if (!$withHeader instanceof ResponseInterface) {
+                throw new \LogicException('Response factory returned a non-response message');
+            }
+            $response = $withHeader;
         }
 
         $response->getBody()->write($content);
@@ -451,18 +456,18 @@ class HttpClient implements ClientInterface
 
     /**
      * Returns HTTP status code and the reason from the provided status line
-     * @param $statusLine
-     * @return array
+     * @return array{0: int, 1: string}
      */
-    protected function getHttpStatus($statusLine): array
+    protected function getHttpStatus(string $statusLine): array
     {
         $parts = explode(' ', $statusLine, 3);
         if (count($parts) < 2 || 0 !== stripos($parts[0], 'http/')) {
             throw new \InvalidArgumentException(sprintf('"%s" is not a valid HTTP status line', $statusLine));
         }
-        $code = $parts[1];
-        $reasonPhrase = $parts[2] ?? '';
-        return [$code, $reasonPhrase];
+        if (!preg_match('/^[1-5]\d\d$/', $parts[1])) {
+            throw new \InvalidArgumentException(sprintf('"%s" is not a valid HTTP status line', $statusLine));
+        }
+        return [(int) $parts[1], $parts[2] ?? ''];
     }
 
     /**
@@ -479,7 +484,7 @@ class HttpClient implements ClientInterface
         $delay = 2 ** $attempt * $oneSecondInMicroseconds;
         $jitter = random_int(0, $oneSecondInMicroseconds);
 
-        return min($delay + $jitter, $maxDelay);
+        return (int) min($delay + $jitter, $maxDelay);
     }
 
     /**

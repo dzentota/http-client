@@ -30,7 +30,7 @@ class ResponseFactory implements ResponseFactoryInterface
             {
                 $new = clone $this;
                 $new->customReasonPhrase = (string) $reasonPhrase;
-                $parent = parent::withStatus($code, $reasonPhrase ?: null);
+                $parent = parent::withStatus($code, (string) $reasonPhrase);
                 // Copy the custom reason phrase to the new instance
                 if ($parent instanceof self) {
                     $parent->customReasonPhrase = (string) $reasonPhrase;
