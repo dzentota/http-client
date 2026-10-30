@@ -16,7 +16,9 @@ use Dzentota\DnsResolver\SecurityException;
  */
 final class IpLiteralGuard
 {
-    /** @var array<array{string,int}> */
+    /**
+     * @var array<array{string,int}> 
+     */
     private const BLOCKED_V4 = [
         ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8],
         ['169.254.0.0', 16], ['172.16.0.0', 12], ['192.0.0.0', 24], ['192.0.2.0', 24],
@@ -24,7 +26,9 @@ final class IpLiteralGuard
         ['203.0.113.0', 24], ['224.0.0.0', 4], ['240.0.0.0', 4],
     ];
 
-    /** @var array<array{string,int}> */
+    /**
+     * @var array<array{string,int}> 
+     */
     private const BLOCKED_V6 = [
         ['::', 128], ['::1', 128], ['100::', 64], ['2001::', 32], ['2001:db8::', 32],
         ['2001:10::', 28], ['2001:20::', 28], ['fc00::', 7], ['fe80::', 10], ['fec0::', 10], ['ff00::', 8],
@@ -46,6 +50,7 @@ final class IpLiteralGuard
 
     /**
      * Returns packed (4 or 16 byte) address if $host is an IP literal, null otherwise.
+     *
      * @throws SecurityException for ambiguous numeric hosts that cannot be parsed safely
      */
     public static function parse(string $host): ?string
@@ -129,12 +134,14 @@ final class IpLiteralGuard
         return self::inRanges($packed, self::BLOCKED_V6);
     }
 
-    /** @param array<array{string,int}> $ranges */
+    /**
+     * @param array<array{string,int}> $ranges 
+     */
     private static function inRanges(string $packed, array $ranges): bool
     {
         foreach ($ranges as [$net, $bits]) {
             $netPacked = inet_pton($net);
-            if (strlen($netPacked) !== strlen($packed)) {
+            if ($netPacked === false || strlen($netPacked) !== strlen($packed)) {
                 continue;
             }
             $bytes = intdiv($bits, 8);

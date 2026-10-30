@@ -25,6 +25,9 @@ final class Url
             return $url;
         }
         $base = parse_url($base);
+        if ($base === false) {
+            throw new \InvalidArgumentException('Invalid base URL');
+        }
         if (str_starts_with($url, '#')) {
             $base['fragment'] = substr($url, 1);
             return self::build($base);
@@ -33,14 +36,14 @@ final class Url
         unset($base['query']);
         if (str_starts_with($url, '//')) {
             return self::build([
-                'scheme' => $base['scheme'],
+                'scheme' => $base['scheme'] ?? 'https',
                 'path' => substr($url, 2),
             ]);
         }
         if (str_starts_with($url, '/')) {
             $base['path'] = $url;
         } else {
-            $path = explode('/', $base['path']);
+            $path = explode('/', $base['path'] ?? '/');
             $url_path = explode('/', $url);
             array_pop($path);
             $end = array_pop($url_path);
@@ -104,6 +107,9 @@ final class Url
     public static function convertHostToIp(string $url, string $ip): string
     {
         $parts = parse_url($url);
+        if ($parts === false) {
+            throw new \InvalidArgumentException('Invalid URL');
+        }
         return self::build($parts, $ip);
     }
 

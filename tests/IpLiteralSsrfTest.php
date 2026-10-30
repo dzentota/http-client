@@ -95,14 +95,16 @@ class IpLiteralSsrfTest extends TestCase
     #[DataProvider('publicHosts')]
     public function testPublicIpLiteralsPassGuard(string $host): void
     {
-        $this->assertNull(IpLiteralGuard::assertSafe($host));
+        IpLiteralGuard::assertSafe($host);
+        $this->addToAssertionCount(1);
     }
 
     public function testHostnamesAreLeftToResolver(): void
     {
-        $this->assertNull(IpLiteralGuard::assertSafe('example.com'));
-        $this->assertNull(IpLiteralGuard::assertSafe('1.example.com'));
-        $this->assertNull(IpLiteralGuard::assertSafe('0x7f.example'));
+        $this->expectNotToPerformAssertions();
+        IpLiteralGuard::assertSafe('example.com');
+        IpLiteralGuard::assertSafe('1.example.com');
+        IpLiteralGuard::assertSafe('0x7f.example');
     }
 
     public function testRedirectToIpLiteralIsBlocked(): void
@@ -112,7 +114,7 @@ class IpLiteralSsrfTest extends TestCase
         if ($sock === false) {
             $this->markTestSkipped("Cannot bind local socket: $errstr");
         }
-        $port = (int) substr(strrchr(stream_socket_get_name($sock, false), ':'), 1);
+        $port = (int) substr((string) strrchr((string) stream_socket_get_name($sock, false), ':'), 1);
         $pid = function_exists('pcntl_fork') ? pcntl_fork() : -1;
         if ($pid === -1) {
             $this->markTestSkipped('pcntl not available');
@@ -149,7 +151,7 @@ class IpLiteralSsrfTest extends TestCase
         if ($sock === false) {
             $this->markTestSkipped("Cannot bind local socket: $errstr");
         }
-        $port = (int) substr(strrchr(stream_socket_get_name($sock, false), ':'), 1);
+        $port = (int) substr((string) strrchr((string) stream_socket_get_name($sock, false), ':'), 1);
         $pid = function_exists('pcntl_fork') ? pcntl_fork() : -1;
         if ($pid === -1) {
             $this->markTestSkipped('pcntl not available');

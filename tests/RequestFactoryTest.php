@@ -67,7 +67,9 @@ class RequestFactoryTest extends TestCase
         try {
             $this->factory->createJsonRequest('POST', 'https://example.com/api', $resource);
         } finally {
-            fclose($resource);
+            if (is_resource($resource)) {
+                fclose($resource);
+            }
         }
     }
 } 
