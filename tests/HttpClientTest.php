@@ -24,7 +24,7 @@ class HttpClientTest extends TestCase
     public function testConstructorSetsDefaults(): void
     {
         $client = HttpClient::create();
-        
+
         $this->assertInstanceOf(HttpClient::class, $client);
         $this->assertSame('dzentota-http-client/1.0', $client->getUserAgent());
     }
@@ -35,21 +35,21 @@ class HttpClientTest extends TestCase
             'timeout' => 15.0,
             'maxRedirects' => 5
         ]);
-        
+
         $this->assertInstanceOf(HttpClient::class, $client);
     }
 
     public function testSetResolver(): void
     {
         $result = $this->client->setResolver($this->mockResolver);
-        
+
         $this->assertSame($this->client, $result);
     }
 
     public function testTrustToWithValidHostnames(): void
     {
         $result = $this->client->trustTo('example.com', 'api.example.com');
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -57,7 +57,7 @@ class HttpClientTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid hostname invalid..hostname');
-        
+
         $this->client->trustTo('invalid..hostname');
     }
 
@@ -65,7 +65,7 @@ class HttpClientTest extends TestCase
     {
         $options = ['bindto' => '0.0.0.0:0'];
         $result = $this->client->setSocketContextOptions($options);
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -73,21 +73,21 @@ class HttpClientTest extends TestCase
     {
         $options = ['cafile' => '/path/to/ca.pem'];
         $result = $this->client->setSslContextOptions($options);
-        
+
         $this->assertSame($this->client, $result);
     }
 
     public function testUseStrictRedirects(): void
     {
         $result = $this->client->useStrictRedirects();
-        
+
         $this->assertSame($this->client, $result);
     }
 
     public function testSetTimeout(): void
     {
         $result = $this->client->setTimeout(20.0);
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -95,7 +95,7 @@ class HttpClientTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Timeout can't be 0");
-        
+
         $this->client->setTimeout(0);
     }
 
@@ -103,14 +103,14 @@ class HttpClientTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage("Timeout can't be 0");
-        
+
         $this->client->setTimeout(0.0);
     }
 
     public function testSetMaxRedirects(): void
     {
         $result = $this->client->setMaxRedirects(5);
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -118,14 +118,14 @@ class HttpClientTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The max number of redirects can not be less than zero');
-        
+
         $this->client->setMaxRedirects(-1);
     }
 
     public function testSetMaxRetries(): void
     {
         $result = $this->client->setMaxRetries(3);
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -133,14 +133,14 @@ class HttpClientTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('The max number of retries cannot be less than zero');
-        
+
         $this->client->setMaxRetries(-1);
     }
 
     public function testSetBaseUri(): void
     {
         $result = $this->client->setBaseUri('https://api.example.com');
-        
+
         $this->assertSame($this->client, $result);
     }
 
@@ -148,7 +148,7 @@ class HttpClientTest extends TestCase
     {
         $userAgent = 'MyApp/1.0';
         $this->client->setUserAgent($userAgent);
-        
+
         $this->assertSame($userAgent, $this->client->getUserAgent());
     }
 
@@ -165,7 +165,7 @@ class HttpClientTest extends TestCase
     public function testCreateWithDefaults(): void
     {
         $client = HttpClient::create();
-        
+
         $this->assertInstanceOf(HttpClient::class, $client);
     }
 
@@ -178,9 +178,9 @@ class HttpClientTest extends TestCase
             'resolver' => $this->mockResolver,
             'trustedHosts' => ['trusted.example.com']
         ];
-        
+
         $client = HttpClient::create($config);
-        
+
         $this->assertInstanceOf(HttpClient::class, $client);
         $this->assertSame('TestAgent/1.0', $client->getUserAgent());
     }
@@ -200,7 +200,7 @@ class HttpClientTest extends TestCase
     public function testGetResponseFactory(): void
     {
         $responseFactory = $this->client->getResponseFactory();
-        
+
         $this->assertInstanceOf(\Psr\Http\Message\ResponseFactoryInterface::class, $responseFactory);
     }
 
@@ -208,7 +208,7 @@ class HttpClientTest extends TestCase
     {
         $mockResponseFactory = $this->createMock(\Psr\Http\Message\ResponseFactoryInterface::class);
         $result = $this->client->setResponseFactory($mockResponseFactory);
-        
+
         $this->assertSame($this->client, $result);
     }
-} 
+}

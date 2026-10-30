@@ -36,7 +36,7 @@ class MethodTest extends TestCase
     public function testEnumHasAllExpectedMethods(): void
     {
         $expectedMethods = [
-            'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 
+            'GET', 'POST', 'PUT', 'PATCH', 'DELETE',
             'HEAD', 'OPTIONS', 'TRACE', 'CONNECT'
         ];
 
@@ -46,6 +46,10 @@ class MethodTest extends TestCase
             $this->assertContains($expected, $actualMethods, "Method enum should contain {$expected}");
         }
 
-        $this->assertCount(count($expectedMethods), $actualMethods, "Method enum should have exactly " . count($expectedMethods) . " cases");
+        $this->assertCount(
+            count($expectedMethods),
+            $actualMethods,
+            "Method enum should have exactly " . count($expectedMethods) . " cases"
+        );
     }
-} 
+}

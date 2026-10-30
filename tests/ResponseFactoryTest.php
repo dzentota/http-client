@@ -41,4 +41,4 @@ class ResponseFactoryTest extends TestCase
         $this->assertSame(201, $response->getStatusCode());
         $this->assertSame('', $response->getReasonPhrase());
     }
-} 
+}

@@ -60,7 +60,7 @@ class RequestFactoryTest extends TestCase
     {
         // Create a resource that can't be JSON encoded
         $resource = fopen('php://memory', 'r');
-        
+
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Failed to encode the body');
 
@@ -72,4 +72,4 @@ class RequestFactoryTest extends TestCase
             }
         }
     }
-} 
+}

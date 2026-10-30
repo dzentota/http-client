@@ -35,8 +35,8 @@
     "scripts": {
         "test": "phpunit",
         "phpstan": "phpstan analyse src tests",
-        "cs-check": "phpcs src tests",
-        "cs-fix": "phpcbf src tests"
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

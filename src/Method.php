@@ -6,7 +6,7 @@ namespace Dzentota\HttpClient;
 
 /**
  * HTTP method enumeration
- * 
+ *
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
  */
 enum Method: string
@@ -55,4 +55,4 @@ enum Method: string
      * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH
      */
     case PATCH = 'PATCH';
-} 
+}

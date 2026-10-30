@@ -123,7 +123,10 @@ class IpLiteralSsrfTest extends TestCase
             $conn = @stream_socket_accept($sock, 5);
             if ($conn) {
                 fread($conn, 8192);
-                fwrite($conn, "HTTP/1.1 302 Found\r\nLocation: http://0x7f.1:$port/secret\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+                fwrite(
+                    $conn,
+                    "HTTP/1.1 302 Found\r\nLocation: http://0x7f.1:$port/secret\r\nContent-Length: 0\r\nConnection: close\r\n\r\n"
+                );
                 fclose($conn);
             }
             // A second connection here would mean the redirect was followed.

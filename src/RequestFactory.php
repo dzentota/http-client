@@ -52,4 +52,4 @@ class RequestFactory implements RequestFactoryInterface
 
         return new Request($method, $uri, $headers, $body);
     }
-} 
+}

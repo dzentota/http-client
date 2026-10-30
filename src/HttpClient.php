@@ -210,29 +210,32 @@ class HttpClient implements ClientInterface
 
     /**
      * Perform POST request
+     *
+     * @param string|array<mixed>|object $body
      */
-    /** @param string|array<mixed>|object $body */
     public function post(string $url, mixed $body, array $headers = []): ResponseInterface
     {
-        return $this->request(Method::POST, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
+        return $this->request(Method::POST, $url, ...$this->formBody($body, $headers));
     }
 
     /**
      * Perform PUT request
+     *
+     * @param string|array<mixed>|object $body
      */
-    /** @param string|array<mixed>|object $body */
     public function put(string $url, mixed $body, array $headers = []): ResponseInterface
     {
-        return $this->request(Method::PUT, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
+        return $this->request(Method::PUT, $url, ...$this->formBody($body, $headers));
     }
 
     /**
      * Perform PATCH request
+     *
+     * @param string|array<mixed>|object $body
      */
-    /** @param string|array<mixed>|object $body */
     public function patch(string $url, mixed $body, array $headers = []): ResponseInterface
     {
-        return $this->request(Method::PATCH, $url, is_string($body) ? $body : http_build_query((array)$body), array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers));
+        return $this->request(Method::PATCH, $url, ...$this->formBody($body, $headers));
     }
 
     /**
@@ -259,7 +262,7 @@ class HttpClient implements ClientInterface
         $method = Method::from($request->getMethod());
         $url = (string) $request->getUri();
         $body = $request->getBody()->getContents();
-        
+
         $headers = [];
         foreach ($request->getHeaders() as $name => $values) {
             $headers[$name] = implode(', ', $values);
@@ -274,7 +277,7 @@ class HttpClient implements ClientInterface
     public function request(Method $method, string $url, ?string $body = null, array $headers = []): ResponseInterface
     {
         $methodString = $method->value;
-        
+
         if (!empty($this->baseUri) && !str_starts_with($url, 'http')) {
             $url = $this->baseUri . '/' . ltrim($url, '/');
         }
@@ -289,16 +292,16 @@ class HttpClient implements ClientInterface
         // Parse and validate URL
         $this->validateUrl($url);
         $host = parse_url($url, PHP_URL_HOST);
-        
+
         if (!is_string($host)) {
             throw new \InvalidArgumentException('Invalid url: missing or invalid host.');
         }
-        
+
         // Determine target URL for the request
         $targetUrl = $this->resolveTargetUrl($url, $host);
-        
+
         $requestHeaders = $this->buildHeaders($headers, $host);
-        
+
         $context = stream_context_create([
             'http' => array_merge([
                 'method' => $methodString,
@@ -317,14 +320,14 @@ class HttpClient implements ClientInterface
         $retryCount = 0;
         $content = false;
         $http_response_header = [];
-        
+
         while ($retryCount <= $this->maxRetries) {
             $content = @file_get_contents($targetUrl, false, $context);
-            
+
             if ($content !== false) {
                 break;
             }
-            
+
             if ($retryCount < $this->maxRetries) {
                 $retryCount++;
                 $delay = $this->getExponentialBackoffDelayInMicroseconds($retryCount);
@@ -343,13 +346,14 @@ class HttpClient implements ClientInterface
         // Follow redirects.
         if ($this->maxRedirects > 0 && $this->redirectsCount < $this->maxRedirects) {
             $statusCode = $this->getStatusCode($http_response_header);
-            
+
             foreach ($http_response_header as $header) {
                 $canonicalHeader = strtolower(trim($header));
                 if (str_starts_with($canonicalHeader, 'location: ')) {
                     $this->redirectsCount++;
                     $redirectUrl = $this->resolveRedirectUrl(substr(trim($header), 10), $url);
-                    if ($statusCode === 303 ||
+                    if (
+                        $statusCode === 303 ||
                         ($statusCode <= 302 && !$this->strictRedirects)
                     ) {
                         $safeMethods = [Method::GET, Method::HEAD, Method::OPTIONS];
@@ -358,7 +362,7 @@ class HttpClient implements ClientInterface
                     }
                     try {
                         return $this->request($method, $redirectUrl, $body, $headers);
-                    } catch (RequestException|\Dzentota\DnsResolver\QueryFailedException $exception) {
+                    } catch (RequestException | \Dzentota\DnsResolver\QueryFailedException $exception) {
                         $this->redirectsCount = 0;
                         throw $exception;
                     }
@@ -399,6 +403,19 @@ class HttpClient implements ClientInterface
     }
 
     /**
+     * @param string|array<mixed>|object $body
+     * @param array<string, string> $headers
+     * @return array{0: string, 1: array<string, string>}
+     */
+    private function formBody(mixed $body, array $headers): array
+    {
+        return [
+            is_string($body) ? $body : http_build_query((array) $body),
+            array_merge(['Content-type' => 'application/x-www-form-urlencoded'], $headers),
+        ];
+    }
+
+    /**
      * Returns HTTP status code of the response
      * @param array $responseHeaders
      * @return int
@@ -424,7 +441,7 @@ class HttpClient implements ClientInterface
         // Force correct Host header, override if it was provided in $headers
         $requestHeaders['host'] = $host;
         $requestHeaders['user-agent'] = $this->getUserAgent();
-        
+
         return array_map(function ($k, $v) {
             return "$k: $v";
         }, array_keys($requestHeaders), array_values($requestHeaders));
@@ -527,7 +544,7 @@ class HttpClient implements ClientInterface
         // Resolve hostname to IP for security
         $resolver = $this->resolver ?? new SecureNativeResolver(SecurityPolicy::createStrict());
         $ipAddress = $resolver->resolveToIp($host);
-        
+
         // Replace hostname with IP in URL
         return $this->convertHostToIp($url, $ipAddress->toString());
     }
@@ -582,7 +599,7 @@ class HttpClient implements ClientInterface
     public static function create(array $config = []): self
     {
         $client = new self();
-        
+
         if (!empty($config['timeout'])) {
             $client->setTimeout($config['timeout']);
         }
@@ -598,7 +615,7 @@ class HttpClient implements ClientInterface
         if (!empty($config['trustedHosts'])) {
             $client->trustTo(...$config['trustedHosts']);
         }
-        
+
         return $client;
     }
-} 
+}
