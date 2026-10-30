@@ -277,6 +277,13 @@ class HttpClient implements ClientInterface
             $url = $this->baseUri . '/' . ltrim($url, '/');
         }
 
+        // SSRF: IP-literal hosts bypass DNS resolution, so check them before anything else
+        // (also applies to every redirect hop, since redirects re-enter request()).
+        $rawHost = parse_url($url, PHP_URL_HOST);
+        if (is_string($rawHost) && !$this->isTrustedHost($rawHost)) {
+            IpLiteralGuard::assertSafe($rawHost);
+        }
+
         // Parse and validate URL
         $this->validateUrl($url);
         $host = parse_url($url, PHP_URL_HOST);
@@ -351,7 +358,7 @@ class HttpClient implements ClientInterface
                     }
                     try {
                         return $this->request($method, $redirectUrl, $body, $headers);
-                    } catch (RequestException $exception) {
+                    } catch (RequestException|\Dzentota\DnsResolver\QueryFailedException $exception) {
                         $this->redirectsCount = 0;
                         throw $exception;
                     }
@@ -501,13 +508,15 @@ class HttpClient implements ClientInterface
     private function resolveTargetUrl(string $url, string $host): string
     {
         // If host is trusted, use original URL
-        if (in_array($host, $this->trustedHosts, true)) {
+        if ($this->isTrustedHost($host)) {
             return $url;
         }
 
-        // If host is already an IP address, use original URL
-        if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
-            return $url;
+        // IP literal: already validated by IpLiteralGuard in request()
+        $packed = IpLiteralGuard::parse($host);
+        if ($packed !== null) {
+            // Canonicalise non-standard IPv4 forms so we connect to exactly what was checked
+            return strlen($packed) === 4 ? $this->convertHostToIp($url, (string) inet_ntop($packed)) : $url;
         }
 
         // Resolve hostname to IP for security
@@ -516,6 +525,11 @@ class HttpClient implements ClientInterface
         
         // Replace hostname with IP in URL
         return $this->convertHostToIp($url, $ipAddress->toString());
+    }
+
+    private function isTrustedHost(string $host): bool
+    {
+        return in_array(strtolower(trim($host, '[]')), array_map('strtolower', $this->trustedHosts), true);
     }
 
     /**
