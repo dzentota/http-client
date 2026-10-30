@@ -88,7 +88,7 @@ class UrlTest extends TestCase
             'host' => 'example.com',
             'path' => '/path'
         ];
-        
+
         $result = Url::build($parts);
         $this->assertSame('https://example.com/path', $result);
     }
@@ -100,7 +100,7 @@ class UrlTest extends TestCase
             'host' => 'example.com',
             'path' => '/path'
         ];
-        
+
         $result = Url::build($parts, '93.184.216.34');
         $this->assertSame('https://93.184.216.34/path', $result);
     }
@@ -117,7 +117,7 @@ class UrlTest extends TestCase
             'query' => 'param=value',
             'fragment' => 'section'
         ];
-        
+
         $result = Url::build($parts);
         $this->assertSame('https://username:password@example.com:8080/path?param=value#section', $result);
     }
@@ -130,7 +130,7 @@ class UrlTest extends TestCase
             'host' => 'example.com',
             'path' => '/path'
         ];
-        
+
         $result = Url::build($parts);
         $this->assertSame('https://username@example.com/path', $result);
     }
@@ -138,8 +138,8 @@ class UrlTest extends TestCase
     public function testBuildUrlMinimal(): void
     {
         $parts = ['host' => 'example.com'];
-        
+
         $result = Url::build($parts);
         $this->assertSame('example.com', $result);
     }
-} 
+}

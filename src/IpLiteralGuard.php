@@ -17,7 +17,7 @@ use Dzentota\DnsResolver\SecurityException;
 final class IpLiteralGuard
 {
     /**
-     * @var array<array{string,int}> 
+     * @var array<array{string,int}>
      */
     private const BLOCKED_V4 = [
         ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8],
@@ -27,7 +27,7 @@ final class IpLiteralGuard
     ];
 
     /**
-     * @var array<array{string,int}> 
+     * @var array<array{string,int}>
      */
     private const BLOCKED_V6 = [
         ['::', 128], ['::1', 128], ['100::', 64], ['2001::', 32], ['2001:db8::', 32],
@@ -118,7 +118,8 @@ final class IpLiteralGuard
         }
         // Embedded IPv4: mapped ::ffff:0:0/96, compatible ::/96, NAT64 64:ff9b::/96
         $prefix12 = substr($packed, 0, 12);
-        if ($prefix12 === str_repeat("\0", 10) . "\xff\xff"
+        if (
+            $prefix12 === str_repeat("\0", 10) . "\xff\xff"
             || $prefix12 === str_repeat("\0", 12)
             || $prefix12 === "\x00\x64\xff\x9b" . str_repeat("\0", 8)
         ) {
@@ -135,7 +136,7 @@ final class IpLiteralGuard
     }
 
     /**
-     * @param array<array{string,int}> $ranges 
+     * @param array<array{string,int}> $ranges
      */
     private static function inRanges(string $packed, array $ranges): bool
     {

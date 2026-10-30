@@ -12,7 +12,7 @@ class RequestExceptionTest extends TestCase
     public function testExceptionImplementsClientExceptionInterface(): void
     {
         $exception = new RequestException('Test message');
-        
+
         $this->assertInstanceOf(\Psr\Http\Client\ClientExceptionInterface::class, $exception);
         $this->assertInstanceOf(\RuntimeException::class, $exception);
     }
@@ -21,7 +21,7 @@ class RequestExceptionTest extends TestCase
     {
         $message = 'HTTP request failed';
         $exception = new RequestException($message);
-        
+
         $this->assertSame($message, $exception->getMessage());
     }
 
@@ -29,7 +29,7 @@ class RequestExceptionTest extends TestCase
     {
         $code = 123;
         $exception = new RequestException('Test message', $code);
-        
+
         $this->assertSame($code, $exception->getCode());
     }
 
@@ -37,7 +37,7 @@ class RequestExceptionTest extends TestCase
     {
         $previous = new \Exception('Previous exception');
         $exception = new RequestException('Test message', 0, $previous);
-        
+
         $this->assertSame($previous, $exception->getPrevious());
     }
-} 
+}

@@ -123,4 +123,4 @@ final class Url
     {
         return self::resolve($url, $base);
     }
-} 
+}

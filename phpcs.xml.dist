@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="dzentota/http-client">
+    <description>PSR-12 coding standard.</description>
+    <file>src</file>
+    <file>tests</file>
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+    <rule ref="PSR12"/>
+    <!-- Test method names describe behaviour and may be long. -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="140"/>
+            <property name="absoluteLineLimit" value="0"/>
+        </properties>
+    </rule>
+</ruleset>
