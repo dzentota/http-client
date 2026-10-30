@@ -72,6 +72,13 @@ The library automatically prevents SSRF attacks by:
 - `224.0.0.0/4` - RFC 3330 Multicast
 - `240.0.0.0/4` - RFC 3330 Reserved
 
+### IP-literal hosts
+
+URLs that use an IP address as host (including non-canonical forms such as `2130706433`, `0x7f.1`,
+`127.1` and IPv6 forms like `[::ffff:127.0.0.1]`) are checked against private, loopback, link-local,
+multicast and reserved ranges before connecting, including on redirects. Blocked requests throw
+`Dzentota\DnsResolver\SecurityException`. Versions before this fix did not check IP literals (see CHANGELOG).
+
 ### Trusted Hosts
 
 For internal services that you need to access, use trusted hosts:
